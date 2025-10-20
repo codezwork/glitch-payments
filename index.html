@@ -564,7 +564,7 @@
 
     async function loadAvailableNotes() {
       try {
-        const response = await fetch('/get-notes');
+        const response = await fetch('/api/get-notes');
         notesData = await response.json();
         
         // Populate course select dropdown
@@ -707,7 +707,7 @@
       }
 
       try {
-        const response = await fetch('/create-order', {
+        const response = await fetch('/api/create-order', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -762,7 +762,7 @@
     }
 
     function verifyPayment(response) {
-      fetch('/verify-payment', {
+      fetch('/api/verify-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
