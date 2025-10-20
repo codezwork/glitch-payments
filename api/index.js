@@ -11,7 +11,7 @@ const razorpay = new Razorpay({
 const coursesDictionary = {
   glitch_the_matrix: {
     name: 'Full Vault Access',
-    price: 199,
+    price: 1,
     downloadLink: 'https://drive.google.com/uc?export=download&id=1c-derRuqDkC89cW5kTCp8ujFO1zc3Nsw',
     image: 'https://github.com/glitchingthroughmatrix/image-hosting/blob/main/Break%20the%20matrix%20thumbnail%20on%20website.png?raw=true',
     description:
