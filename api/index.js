@@ -11,9 +11,6 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve static files from root directory
-app.use(express.static(path.join(__dirname, '..')));
-
 // Razorpay configuration - Use environment variables
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_RP5EQelgnPuwiH',
@@ -197,11 +194,6 @@ app.post('/verify-payment', (req, res) => {
     console.error('Payment verification error:', error);
     res.status(500).json({ status: 'error', message: 'Error verifying payment' });
   }
-});
-
-// Serve the main page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 // Export the Express app for Vercel
