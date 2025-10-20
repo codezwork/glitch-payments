@@ -1,0 +1,21 @@
+{
+  "name": "integration-rzp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api/index.js",
+  "scripts": {
+    "dev": "node app.js",
+    "start": "node api/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "razorpay": "^2.9.6"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
