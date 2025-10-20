@@ -32,10 +32,6 @@
     {
       "src": "*.css",
       "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -53,9 +49,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "RAZORPAY_KEY_ID": "rzp_live_RP5EQelgnPuwiH",
-    "RAZORPAY_KEY_SECRET": "O4cpPH86H9BecP47Cm0O4ZAu"
-  }
+  ]
 }
