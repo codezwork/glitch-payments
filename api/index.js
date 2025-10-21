@@ -128,24 +128,51 @@ module.exports = async (req, res) => {
 
     // POST → /api/verify-payment
     if (url === '/api/verify-payment' && method === 'POST') {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
+      // Razorpay mobile flow may send form data instead of JSON
+      let razorpay_order_id, razorpay_payment_id, razorpay_signature;
+    
+      // Handle both JSON and form-urlencoded payloads
+      if (req.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+        let body = '';
+        await new Promise((resolve) => {
+          req.on('data', (chunk) => (body += chunk.toString()));
+          req.on('end', resolve);
+        });
+        const params = new URLSearchParams(body);
+        razorpay_order_id = params.get('razorpay_order_id');
+        razorpay_payment_id = params.get('razorpay_payment_id');
+        razorpay_signature = params.get('razorpay_signature');
+      } else {
+        ({ razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body || {});
+      }
+    
       const secret = process.env.RAZORPAY_KEY_SECRET;
       const isValid = verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature, secret);
-
+    
       if (!isValid) {
         return res.status(400).json({ status: 'verification_failed' });
       }
-
+    
       const order = ordersData.find((o) => o.order_id === razorpay_order_id);
       if (!order) {
         return res.status(404).json({ status: 'error', message: 'Order not found' });
       }
-
+    
       order.status = 'paid';
       order.payment_id = razorpay_payment_id;
       order.paid_at = new Date().toISOString();
-
+    
+      // ✅ Detect mobile (redirect) vs desktop (AJAX)
+      const isMobileRedirect = req.headers['content-type']?.includes('application/x-www-form-urlencoded');
+    
+      if (isMobileRedirect) {
+        // Razorpay redirects mobile users back here after payment → redirect to success page
+        return res.writeHead(302, {
+          Location: `/success.html?order_id=${razorpay_order_id}&payment_id=${razorpay_payment_id}`,
+        }).end();
+      }
+    
+      // Desktop overlay flow → send JSON back
       return res.status(200).json({
         status: 'ok',
         order_id: razorpay_order_id,
@@ -154,7 +181,7 @@ module.exports = async (req, res) => {
         product_name: order.product_name,
       });
     }
-
+    
     // Default route
     return res.status(404).json({ message: 'Invalid endpoint' });
   } catch (error) {
