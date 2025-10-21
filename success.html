@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <meta charset="UTF-8" />
+  <title>Hustle Begins!</title>
+  <style>
+    .download-button {
+      display: inline-block;
+      padding: 16px 40px;
+      background-color: #e3a72f;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 0 24px;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+
+    .return-button {
+      display: inline-block;
+      padding: 16px 40px;
+      background-color: #fff;
+      color: #000;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 10px 0 24px;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+    body { background:#012f1d; color: #fff; font-family:sans-serif; text-align:center; padding:40px; }
+    a { color:white; text-decoration:none; font-weight:bold; }
+  </style>
+</head>
+<body>
+  <img src="https://github.com/glitchingthroughmatrix/image-hosting/blob/main/glitchthematrix(no-background-logo).png?raw=true" alt="glitchthematrix" width="10%">
+      <h2 style="color: #e3a72f;">Hustle Begins!</h2>
+      <p>Your purchase is just the first step. But remember <br><strong>Knowledge is useless without execution.</strong></p>
+      
+      <a href="#" id="download-link" class="download-button" target="_blank">
+        Access Your Course
+      </a>
+  <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+  <p><strong>Payment ID:</strong> <span id="payment-id"></span></p>
+  <p>Most people do not start in the first place. 
+        <br>You have already distinguished yourself by accessing this ocean of money knowledge</p>
+
+      <p class="close-note"><i>Welcome to the elite few<i></p>
+  <p><a href="https://glitch.mambaclub.site/" class="return-button" target="_blank">
+    Return to Home</a></p>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+
+        const orderId = params.get('order_id');
+        const paymentId = params.get('payment_id');
+        const downloadLink = params.get('download_link');
+        const productName = params.get('product_name');
+
+        // Populate order/payment IDs
+        document.getElementById('order-id').textContent = orderId || 'N/A';
+        document.getElementById('payment-id').textContent = paymentId || 'N/A';
+
+        // Update "Access Your Course" button
+        const downloadBtn = document.getElementById('download-link');
+        if (downloadLink) {
+        downloadBtn.href = decodeURIComponent(downloadLink);
+        } else {
+        downloadBtn.href = '#';
+        downloadBtn.textContent = 'Download link not available';
+        downloadBtn.style.opacity = '0.7';
+        downloadBtn.style.pointerEvents = 'none';
+        }
+
+        // Optional: dynamically change title if product name is provided
+        if (productName) {
+        document.title = `${decodeURIComponent(productName)} | Glitch The Matrix`;
+        }
+    });
+  </script>
+</body>
+</html>
