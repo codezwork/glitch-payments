@@ -166,11 +166,15 @@ module.exports = async (req, res) => {
       const isMobileRedirect = req.headers['content-type']?.includes('application/x-www-form-urlencoded');
     
       if (isMobileRedirect) {
-        // Razorpay redirects mobile users back here after payment → redirect to success page
+        // Encode download link and product name safely
+        const encodedLink = encodeURIComponent(order.download_link);
+        const encodedName = encodeURIComponent(order.product_name);
+      
         return res.writeHead(302, {
-          Location: `/success.html?order_id=${razorpay_order_id}&payment_id=${razorpay_payment_id}`,
+          Location: `/success.html?order_id=${razorpay_order_id}&payment_id=${razorpay_payment_id}&product_name=${encodedName}&download_link=${encodedLink}`,
         }).end();
       }
+
     
       // Desktop overlay flow → send JSON back
       return res.status(200).json({
