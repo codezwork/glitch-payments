@@ -127,12 +127,13 @@ module.exports = async (req, res) => {
     }
 
     // POST → /api/verify-payment
+    // POST → /api/verify-payment
     if (url === '/api/verify-payment' && method === 'POST') {
-      // Razorpay mobile flow may send form data instead of JSON
+      // Razorpay may send form data (mobile redirect) or JSON (desktop AJAX)
       let razorpay_order_id, razorpay_payment_id, razorpay_signature;
     
-      // Handle both JSON and form-urlencoded payloads
       if (req.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+        // Parse form data
         let body = '';
         await new Promise((resolve) => {
           req.on('data', (chunk) => (body += chunk.toString()));
@@ -143,48 +144,31 @@ module.exports = async (req, res) => {
         razorpay_payment_id = params.get('razorpay_payment_id');
         razorpay_signature = params.get('razorpay_signature');
       } else {
+        // Parse JSON body
         ({ razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body || {});
       }
     
       const secret = process.env.RAZORPAY_KEY_SECRET;
       const isValid = verifySignature(razorpay_order_id, razorpay_payment_id, razorpay_signature, secret);
     
-      if (!isValid) {
-        return res.status(400).json({ status: 'verification_failed' });
-      }
+      if (!isValid) return res.status(400).send('Verification failed');
     
-      const order = ordersData.find((o) => o.order_id === razorpay_order_id);
-      if (!order) {
-        return res.status(404).json({ status: 'error', message: 'Order not found' });
-      }
+      const order = ordersData.find(o => o.order_id === razorpay_order_id);
+      if (!order) return res.status(404).send('Order not found');
     
       order.status = 'paid';
       order.payment_id = razorpay_payment_id;
       order.paid_at = new Date().toISOString();
     
-      // ✅ Detect mobile (redirect) vs desktop (AJAX)
-      const isMobileRedirect = req.headers['content-type']?.includes('application/x-www-form-urlencoded');
+      // ✅ Always redirect to success.html with query params
+      const redirectUrl = `/success.html?order_id=${encodeURIComponent(razorpay_order_id)}&payment_id=${encodeURIComponent(
+        razorpay_payment_id
+      )}&download_link=${encodeURIComponent(order.download_link)}&product_name=${encodeURIComponent(order.product_name)}`;
     
-      if (isMobileRedirect) {
-        // Encode download link and product name safely
-        const encodedLink = encodeURIComponent(order.download_link);
-        const encodedName = encodeURIComponent(order.product_name);
-      
-        return res.writeHead(302, {
-          Location: `/success.html?order_id=${razorpay_order_id}&payment_id=${razorpay_payment_id}&product_name=${encodedName}&download_link=${encodedLink}`,
-        }).end();
-      }
-
-    
-      // Desktop overlay flow → send JSON back
-      return res.status(200).json({
-        status: 'ok',
-        order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id,
-        download_link: order.download_link,
-        product_name: order.product_name,
-      });
+      res.writeHead(302, { Location: redirectUrl });
+      return res.end();
     }
+
     
     // Default route
     return res.status(404).json({ message: 'Invalid endpoint' });
